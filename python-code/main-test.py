@@ -17,8 +17,8 @@ print train_dtm.shape
 from sklearn.naive_bayes import MultinomialNB
 clf = MultinomialNB().fit(train_dtm, is_spam)
 
-data_new = ['how won asdsdf', 'Krishna won how is ur health', 'Your how name']
-#test_dtm = vect.transform(data_new)
+data_new = ['how asdsdf', 'won how is ur health', 'Your name']
+test_dtm = vect.transform(data_new)
 actual = [1, 0, 0]
 #predicted = clf.predict(test_dtm)
 #target_names = ['No', 'Yes']
@@ -32,3 +32,13 @@ print("Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
 
 #from sklearn import metrics
 #print(metrics.classification_report(actual, predicted, target_names=target_names))
+
+from sklearn.pipeline import Pipeline
+text_clf = Pipeline([('vect1', CountVectorizer()),
+                     ('tfidf1', TfidfTransformer()),
+                     ('clf1', MultinomialNB())])
+text_clf = text_clf.fit(data, is_spam)
+predicted = text_clf.predict(data_new)
+target_names = ['No', 'Yes']
+for d, c in zip(data_new, predicted):
+    print ('%r => %s' % (d, target_names[c]))
