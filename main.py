@@ -11,14 +11,15 @@ mode = 0
 util.debug_mode = 0
 
 dataFolder = 'data/'
-fileNames = [['obama.csv', 'obama_test.csv']]#, ['romney.csv', 'romney_test.csv']]
+fileNames = [['obama.csv', 'obama_test.csv'], ['romney.csv', 'romney_test.csv']]
 train_data_raw = []
 test_data_raw = []
 
 if mode == 0:
-    for fileN in fileNames :
-        train_data_raw.append(util.readCSVFile(dataFolder, fileN[0], 1, 4290))
-        test_data_raw.append(util.readCSVFile(dataFolder, fileN[0], 5000, 5500))
+    for index, fileN in enumerate(fileNames) :
+        train_data_raw.append(util.readCSVFile(dataFolder, fileN[0], 1, 5200))
+        test_data_raw.append([])
+        test_data_raw[index].append(util.readCSVFile(dataFolder, fileN[0], 5000, 5500))
 
     for index, data in enumerate(train_data_raw):
         util.printString('File: ' + fileNames[index][0], "File read:")  
@@ -27,29 +28,31 @@ if mode == 0:
 for index, data in enumerate(train_data_raw):
     train_data_raw[index] = util.cleanUpData(data)   
 
-for index, data in enumerate(test_data_raw):
-    test_data_raw[index] = util.cleanUpData(data)     
+for i, d in enumerate(test_data_raw):
+    for index, data in enumerate(d):
+        test_data_raw[i][index] = util.cleanUpData(data)     
 
 for index, data in enumerate(train_data_raw):
     util.printString('Training Dataset: ' + fileNames[index][0].split('.')[0]) 
     util.printList(data, 'After cleanup:')     
 
-for index, data in enumerate(test_data_raw):
-    util.printString('Testing Dataset: ' + fileNames[index][0].split('.')[0]) 
-    util.printList(data, 'After cleanup:')  
+#for i, d in enumerate(test_data_raw):
+    #for index, data in enumerate(d):
+        #util.printString('Testing Dataset ',index,' of: ' + fileNames[index][0].split('.')[0]) 
+        #util.printList(data, 'After cleanup:')  
 
-for tData in train_data_raw:
-    labels = tData[0]
-    data = tData[1]
-    clf = classification.createClassifiers(labels, data)
-    
-    for ttData in test_data_raw:
-        tLabels = ttData[0]
-        tData = ttData[1]
-        predicted = clf.predict(tData)
-        target_names = ['Negative', 'Neutral', 'Positive']
-        from sklearn import metrics
-        print(metrics.classification_report(tLabels, predicted, target_names=target_names))
+target_names = ['Negative', 'Neutral', 'Positive']
 
-        from sklearn.metrics import accuracy_score
-        print('Accuracy: ' + "{:.00%}".format(accuracy_score(tLabels, predicted, normalize=True)))
+for tIndex, tData in enumerate(train_data_raw):
+    print len(tData[0])
+    kfoldData = classification.createKCrossFold(tData[0], tData[1], 10)
+
+    for kData in kfoldData:
+        labels = kData[0][0]
+        data = kData[0][1]
+        clf = classification.createClassifiers(labels, data)
+
+        util.printString('Results for dataset: ' + fileNames[tIndex][0].split('.')[0], overrideDebug = 1)
+        classification.printResults(clf, target_names, kData[1])
+        #for ttData in test_data_raw[tIndex]:
+            #classification.printResults(clf, ttData, target_names)
