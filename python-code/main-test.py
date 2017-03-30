@@ -17,7 +17,7 @@ print train_dtm.shape
 from sklearn.naive_bayes import MultinomialNB
 clf = MultinomialNB().fit(train_dtm, is_spam)
 
-data_new = ['how asdsdf', 'won how is ur health', 'Your name']
+data_new = ['how asdsdf', 'won asd dsf how isdfs ur health', 'Your f dsf dsf sdfname']
 test_dtm = vect.transform(data_new)
 actual = [1, 0, 0]
 #predicted = clf.predict(test_dtm)
@@ -42,3 +42,6 @@ predicted = text_clf.predict(data_new)
 target_names = ['No', 'Yes']
 for d, c in zip(data_new, predicted):
     print ('%r => %s' % (d, target_names[c]))
+
+from sklearn import metrics
+print(metrics.classification_report(actual, predicted, target_names=target_names))
