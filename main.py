@@ -42,17 +42,19 @@ for index, data in enumerate(train_data_raw):
         #util.printList(data, 'After cleanup:')  
 
 target_names = ['Negative', 'Neutral', 'Positive']
+classification.init()
 
 for tIndex, tData in enumerate(train_data_raw):
     print len(tData[0])
     kfoldData = classification.createKCrossFold(tData[0], tData[1], 10)
-
+    
     for kData in kfoldData:
         labels = kData[0][0]
         data = kData[0][1]
         clf = classification.createClassifiers(labels, data)
 
-        util.printString('Results for dataset: ' + fileNames[tIndex][0].split('.')[0], overrideDebug = 1)
-        classification.printResults(clf, target_names, kData[1])
+        util.printString('Results for dataset: ' + fileNames[tIndex][0].split('.')[0])
+        classification.printResults(clf, target_names, kData[1], tIndex)
         #for ttData in test_data_raw[tIndex]:
             #classification.printResults(clf, ttData, target_names)
+classification.print_final_metrics()

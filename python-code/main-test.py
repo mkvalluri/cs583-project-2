@@ -27,7 +27,7 @@ actual = [1, 0, 0]
 
 from sklearn.model_selection import cross_val_score
 scores = cross_val_score(clf, train_dtm, is_spam, cv=3)
-print scores
+print len(scores.split('\n'))
 print("Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
 
 #from sklearn import metrics
