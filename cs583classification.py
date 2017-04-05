@@ -43,7 +43,7 @@ def init():
 def createClassifiers(labels, data):
     clf = Pipeline([('vect', CountVectorizer()),
                          ('tfidf', TfidfTransformer()),
-                         ('clf', SVC())])
+                         ('clf', linear_model.LogisticRegression())])
     clf = clf.fit(data, labels)
     return clf
 

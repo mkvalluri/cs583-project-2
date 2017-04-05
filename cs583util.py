@@ -7,9 +7,10 @@ import itertools
 import re
 
 debug_mode = 0
+stop_words = []
 
 ##Opens csv file and returns the content of it in the form of string[]
-def readCSVFile(rootPath, fileName, firstIndex, lastIndex):
+def readFile(rootPath, fileName, firstIndex, lastIndex):
     lines = []
     with open(rootPath + fileName, 'r') as f:
         for line in itertools.islice(f, firstIndex, lastIndex):
@@ -38,6 +39,9 @@ def printList(data, description = '', overrideDebug = 0):
 def cleanUpData(data):
     classes = []
     lines = []
+    with open('data/stopwords.txt') as f:
+        stop_words = f.read().split()
+    
     for line in data:
         try:
             tempClass = line.split(',', 1)[0]
@@ -69,6 +73,8 @@ def cleanUpData(data):
 
             tempLine = tempLine.encode('utf-8').strip()
 
+            tempLine = removeStopWords(tempLine, stop_words)
+
             classes.append(tempClass)
             lines.append(tempLine)
 
@@ -82,4 +88,11 @@ def cleanUpData(data):
     returnData.append(classes)
     returnData.append(lines)
 
+    removeStopWords("This is a string", stop_words)
+
     return returnData
+
+def removeStopWords(line, stop_words):
+    for word in stop_words:
+        line = line.replace(" " + word + " ", " ")
+    return line
