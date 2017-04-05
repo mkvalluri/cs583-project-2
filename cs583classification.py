@@ -5,11 +5,14 @@
 
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
+from sklearn.pipeline import Pipeline
+
 from sklearn.naive_bayes import MultinomialNB
 from sklearn import linear_model
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.pipeline import Pipeline
+from sklearn.neighbors import KNeighborsClassifier
+
 from sklearn import metrics
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import StratifiedKFold
@@ -40,7 +43,7 @@ def init():
 def createClassifiers(labels, data):
     clf = Pipeline([('vect', CountVectorizer()),
                          ('tfidf', TfidfTransformer()),
-                         ('clf', linear_model.LogisticRegression())])
+                         ('clf', SVC())])
     clf = clf.fit(data, labels)
     return clf
 

@@ -10,14 +10,16 @@ import cs583classification as classification
 mode = 0
 util.debug_mode = 0
 
+##Declarations, Initializations
 dataFolder = 'data/'
 fileNames = [['obama.csv', 'obama_test.csv'], ['romney.csv', 'romney_test.csv']]
 train_data_raw = []
 test_data_raw = []
 
+##Training mode
 if mode == 0:
     for index, fileN in enumerate(fileNames) :
-        train_data_raw.append(util.readCSVFile(dataFolder, fileN[0], 1, 5200))
+        train_data_raw.append(util.readCSVFile(dataFolder, fileN[0], 1, 5500))
         test_data_raw.append([])
         test_data_raw[index].append(util.readCSVFile(dataFolder, fileN[0], 5000, 5500))
 

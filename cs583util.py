@@ -76,7 +76,7 @@ def cleanUpData(data):
             printString(line)
         
         except UnicodeDecodeError:
-            printString(line)
+            printString(tempLine)
 
     returnData = []
     returnData.append(classes)
