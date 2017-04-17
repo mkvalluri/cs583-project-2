@@ -20,8 +20,8 @@ test_data_raw = []
 if mode == 0:
     for index, fileN in enumerate(fileNames) :
         train_data_raw.append(util.readFile(dataFolder, fileN[0], 1, 5500))
-        test_data_raw.append([])
-        test_data_raw[index].append(util.readFile(dataFolder, fileN[0], 5000, 5500))
+        #test_data_raw.append([])
+        #test_data_raw[index].append(util.readFile(dataFolder, fileN[0], 5000, 5500))
 
     for index, data in enumerate(train_data_raw):
         util.printString('File: ' + fileNames[index][0], "File read:")  

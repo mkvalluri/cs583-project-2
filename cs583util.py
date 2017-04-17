@@ -5,6 +5,7 @@
 
 import itertools
 import re
+import csv
 
 debug_mode = 0
 stop_words = []
@@ -39,13 +40,30 @@ def printList(data, description = '', overrideDebug = 0):
 def cleanUpData(data):
     classes = []
     lines = []
-    with open('data/stopwords.txt') as f:
-        stop_words = f.read().split()
+
+    slang_words = {}
+    with open('data/acrynom.csv', mode='r') as infile:
+        for l in infile:
+            slang_words.update({l.split(',')[0]: l.split(',')[1]})
+    
+    smileys = {}
+    with open('data/emoticonsWithPolarity.txt', mode='r') as infile:
+        for l in infile:
+            d1 = l.split('\t')
+            d2 = d1[0].split(' ')
+            for d3 in d2:
+                smileys.update({d3: d1[1]})
+    
     
     for line in data:
         try:
             tempClass = line.split(',', 1)[0]
             tempLine = line.split(',', 1)[1]
+
+            printString(tempLine)
+
+            ##Replace smileys.
+            tempLine = replaceText(tempLine, smileys)
 
             ##Convert everything to lowercase.
             tempLine = tempLine.lower()
@@ -53,7 +71,7 @@ def cleanUpData(data):
             ##Remove htmltags.
             tempLine = re.sub(r'<[^>]+>', '', tempLine)
 
-            #remove hyperlinks
+            #Remove hyperlinks
             tempLine = re.sub(r'https?:\/\/.*\/[a-zA-Z0-9]*', '', tempLine)
             
             #Remove single quotes
@@ -68,13 +86,14 @@ def cleanUpData(data):
             #Remove hashtags
             tempLine = re.sub(r'#', '', tempLine)
 
+            #Remove slang words
+            tempLine = replaceText(tempLine, slang_words)
+
             ##Strip starting and ending spaces.
             tempLine = re.sub( '\s+', ' ', tempLine).strip()    
 
-            tempLine = tempLine.encode('utf-8').strip()
-
-            tempLine = removeStopWords(tempLine, stop_words)
-
+            #tempLine = removeStopWords(tempLine, stop_words)
+            printString(tempLine)
             classes.append(tempClass)
             lines.append(tempLine)
 
@@ -95,4 +114,9 @@ def cleanUpData(data):
 def removeStopWords(line, stop_words):
     for word in stop_words:
         line = line.replace(" " + word + " ", " ")
+    return line
+
+def replaceText(line, wordsDict):
+    for key, value in wordsDict.iteritems():
+        line = line.replace(" " + key + " ", " " + value + " ")
     return line

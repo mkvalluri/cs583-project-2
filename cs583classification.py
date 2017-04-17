@@ -4,14 +4,17 @@
 ##Date: 06/29/2017
 
 from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.pipeline import Pipeline
 
 from sklearn.naive_bayes import MultinomialNB
-from sklearn import linear_model
+from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
+from sklearn.svm import LinearSVC
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.ensemble import VotingClassifier
 
 from sklearn import metrics
 from sklearn.metrics import accuracy_score
@@ -19,10 +22,19 @@ from sklearn.model_selection import StratifiedKFold
 from sklearn.model_selection import StratifiedShuffleSplit
 from sklearn.model_selection import KFold
 
+from nltk import word_tokenize          
+from nltk.stem import WordNetLemmatizer 
+
 import cs583util as util
 import itertools
             
 scores = []
+
+class LemmaTokenizer(object):
+    def __init__(self):
+        self.wnl = WordNetLemmatizer()
+    def __call__(self, doc):
+        return [self.wnl.lemmatize(t) for t in word_tokenize(doc)]
 
 def init():    
     scores.append([]) #obama
@@ -41,9 +53,21 @@ def init():
     scores[1].append([]) #romney accuracy
 
 def createClassifiers(labels, data):
-    clf = Pipeline([('vect', CountVectorizer()),
-                         ('tfidf', TfidfTransformer()),
-                         ('clf', linear_model.LogisticRegression())])
+    
+    stop_words = []
+    with open('data/stopwords.txt') as f:
+        stop_words = f.read().split()
+
+    clf1 = LogisticRegression()
+    clf2 = SVC(kernel='linear', class_weight='balanced', cache_size=1200, probability=True)
+    
+    clf = Pipeline([ ('vect',TfidfVectorizer(tokenizer=LemmaTokenizer(), sublinear_tf=True, max_df=0.9, analyzer='word')),
+                         #('tfidf', TfidfTransformer()),
+                         ('clf', VotingClassifier(estimators=[('lr', clf1), 
+                         ('rf', clf2)], voting='soft', weights=[1, 2]))
+                         #('clf', SVC(kernel='linear', class_weight='balanced', cache_size=800))
+                         #('clf', LogisticRegression())
+                         ])
     clf = clf.fit(data, labels)
     return clf
 
@@ -85,7 +109,7 @@ def print_final_metrics():
     
     for idx, score in enumerate(scores):
         print '\n' + names[idx] + ' results:'
-        print 'Accuracy: ' + get_average(score[2]) + '\n'
+        print 'Accuracy: ' + get_average(score[2], False) + '\n'
         #loop
         for i in range(0, 2):
             avg_prec = get_average(score[i][0])
@@ -97,10 +121,14 @@ def print_final_metrics():
             print 'F-Score: ' + avg_fscore + '\n'
 			
 		
-def get_average(data):
+def get_average(data, inPercentage = True):
     for i, d in enumerate(data):
         data[i] = float(d)
-    return "{:.2f}".format((float(sum(data)) / max(len(data), 1)) * 100)
+    
+    if inPercentage:
+        return "{:.2f}".format(float(sum(data)) / max(len(data), 1))
+    else:        
+        return "{:.2f}".format((float(sum(data)) / max(len(data), 1)) * 100)
 
 def createKCrossFold(labels, data, k = 3):
     skf = StratifiedKFold(n_splits = k)
