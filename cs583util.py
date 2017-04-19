@@ -89,10 +89,12 @@ def cleanUpData(data):
             #Remove slang words
             tempLine = replaceText(tempLine, slang_words)
 
+            #Remove stop words
+            #tempLine = removeStopWords(tempLine, stop_words)
+
             ##Strip starting and ending spaces.
             tempLine = re.sub( '\s+', ' ', tempLine).strip()    
 
-            #tempLine = removeStopWords(tempLine, stop_words)
             printString(tempLine)
             classes.append(tempClass)
             lines.append(tempLine)

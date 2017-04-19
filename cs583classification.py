@@ -60,13 +60,17 @@ def createClassifiers(labels, data):
 
     clf1 = LogisticRegression()
     clf2 = SVC(kernel='linear', class_weight='balanced', cache_size=1200, probability=True)
+    clf3 = MultinomialNB()
     
-    clf = Pipeline([ ('vect',TfidfVectorizer(tokenizer=LemmaTokenizer(), sublinear_tf=True, max_df=0.9, analyzer='word')),
-                         #('tfidf', TfidfTransformer()),
+    clf = Pipeline([ ('vect',CountVectorizer(tokenizer=LemmaTokenizer())),#tokenizer=LemmaTokenizer(), sublinear_tf=True, max_df=0.9, analyzer='word')),
+                         ('tfidf', TfidfTransformer()),
                          ('clf', VotingClassifier(estimators=[('lr', clf1), 
-                         ('rf', clf2)], voting='soft', weights=[1, 2]))
-                         #('clf', SVC(kernel='linear', class_weight='balanced', cache_size=800))
+                         ('svc', clf2), ('mnb', clf3)], voting='soft', weights=[3, 9, 1]))
                          #('clf', LogisticRegression())
+                         #('clf', SVC(kernel='linear', class_weight='balanced', cache_size=800))
+                         #('clf', MultinomialNB())
+                         #('clf', DecisionTreeClassifier())
+                         #('clf', KNeighborsClassifier())
                          ])
     clf = clf.fit(data, labels)
     return clf
