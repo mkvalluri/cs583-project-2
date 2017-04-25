@@ -15,6 +15,11 @@ from sklearn.svm import LinearSVC
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import VotingClassifier
+from sklearn.neural_network import MLPClassifier
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.ensemble import RandomForestClassifier
+
+from imblearn.over_sampling import RandomOverSampler
 
 from sklearn import metrics
 from sklearn.metrics import accuracy_score
@@ -58,19 +63,22 @@ def createClassifiers(labels, data):
     with open('data/stopwords.txt') as f:
         stop_words = f.read().split()
 
-    clf1 = LogisticRegression()
+    clf1 = LogisticRegression(class_weight='balanced')
     clf2 = SVC(kernel='linear', class_weight='balanced', cache_size=1200, probability=True)
     clf3 = MultinomialNB()
     
-    clf = Pipeline([ ('vect',CountVectorizer(tokenizer=LemmaTokenizer())),#tokenizer=LemmaTokenizer(), sublinear_tf=True, max_df=0.9, analyzer='word')),
-                         ('tfidf', TfidfTransformer()),
-                         ('clf', VotingClassifier(estimators=[('lr', clf1), 
-                         ('svc', clf2), ('mnb', clf3)], voting='soft', weights=[3, 9, 1]))
-                         #('clf', LogisticRegression())
-                         #('clf', SVC(kernel='linear', class_weight='balanced', cache_size=800))
+    clf = Pipeline([ ('vect',TfidfVectorizer(tokenizer=LemmaTokenizer(), sublinear_tf=True, 
+                                        max_df=0.9, analyzer='char_wb', ngram_range=(5, 5), min_df=1)),
+                         #('tfidf', TfidfTransformer()),
+                         #('clf', VotingClassifier(estimators=[('lr', clf1), 
+                         #('svc', clf2), ('mnb', clf3)], voting='soft', weights=[3, 9, 1]))
+                         #('clf', LogisticRegression(class_weight='balanced'))
+                         ('clf', SVC(kernel='linear', class_weight='balanced', cache_size=800))
                          #('clf', MultinomialNB())
                          #('clf', DecisionTreeClassifier())
                          #('clf', KNeighborsClassifier())
+                         #('clf', MLPClassifier())
+                         #('clf', RandomForestClassifier(class_weight='balanced', max_depth=None,  min_samples_split=2, random_state=0))
                          ])
     clf = clf.fit(data, labels)
     return clf
@@ -141,7 +149,7 @@ def createKCrossFold(labels, data, k = 3):
 
     dataSets = []
     
-    for train, test in kf.split(data, labels):
+    for train, test in skf.split(data, labels):
         tDataSets = []
         trainingData = []
         trainingLabels = []
