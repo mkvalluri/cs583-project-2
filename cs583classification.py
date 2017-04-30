@@ -87,9 +87,9 @@ def createClassifiers(labels, data):
     clf = Pipeline([ ('vect',TfidfVectorizer(tokenizer=LemmaTokenizer(), sublinear_tf=True, 
                                         max_df=0.9, analyzer='char_wb', ngram_range=(5, 5), min_df=1)),
                          #('tfidf', TfidfTransformer()),
-                         #('clf', VotingClassifier(estimators=[('lr', clf1), 
-                         #('svc', clf2)], voting='soft'))
-                         ('clf', LogisticRegression(class_weight='balanced'))
+                         ('clf', VotingClassifier(estimators=[('lr', clf1), 
+                         ('svc', clf2)], voting='soft'))
+                         #('clf', LogisticRegression(class_weight='balanced'))
                          #('clf', SVC(kernel='linear', cache_size=800))
                          #('clf', linear_model.SGDClassifier())
                          #('clf', MultinomialNB())
