@@ -18,6 +18,7 @@ from sklearn.ensemble import VotingClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.ensemble import AdaBoostClassifier
 from sklearn.ensemble import RandomForestClassifier
+from sklearn import linear_model
 
 from sklearn import metrics
 from sklearn.metrics import accuracy_score
@@ -32,7 +33,12 @@ import cs583util as util
 import itertools
             
 scores = []
-
+clf_list_names = ['Logistic Regression', 'SVC', 'Multinomial NB', 'Decision Trees', 'KNN', 'Voting']
+clf_list = [] 
+output_data = []   
+output_data.append("")
+output_data.append("")
+    
 class LemmaTokenizer(object):
     def __init__(self):
         self.wnl = WordNetLemmatizer()
@@ -55,23 +61,37 @@ def init():
     scores[1][1].extend([[],[],[]]) #romney negative precision, recall, fscore   
     scores[1].append([]) #romney accuracy
 
-def createClassifiers(labels, data):
+def initializeClassifiers(all=True, cl_index=[]):
+    clf_list.append(LogisticRegression(class_weight='balanced'))
+    clf_list.append(SVC(kernel='linear', class_weight='balanced', cache_size=1200, probability=True))
+    clf_list.append(MultinomialNB())
+    clf_list.append(DecisionTreeClassifier())
+    clf_list.append(KNeighborsClassifier())    
+    return len(clf_list)
     
-    stop_words = []
-    with open('data/stopwords.txt') as f:
-        stop_words = f.read().split()
+def vectorizeData(labels, data):
+    vct = Pipeline([ ('vect',TfidfVectorizer(tokenizer=LemmaTokenizer(), sublinear_tf=True, 
+                                        max_df=0.9, analyzer='char_wb', ngram_range=(5, 5), min_df=1))])
+    return vct
 
+def fitData(vectData, index):
+    clf = Pipeline([('clf', clf_list[index])])
+    clf = clf.fit(vectData)
+    return clf
+
+def createClassifiers(labels, data):
     clf1 = LogisticRegression(class_weight='balanced')
     clf2 = SVC(kernel='linear', class_weight='balanced', cache_size=1200, probability=True)
-    clf3 = MultinomialNB()
+    clf3 = linear_model.SGDClassifier(class_weight='balanced')
     
     clf = Pipeline([ ('vect',TfidfVectorizer(tokenizer=LemmaTokenizer(), sublinear_tf=True, 
                                         max_df=0.9, analyzer='char_wb', ngram_range=(5, 5), min_df=1)),
                          #('tfidf', TfidfTransformer()),
                          #('clf', VotingClassifier(estimators=[('lr', clf1), 
-                         #('svc', clf2), ('mnb', clf3)], voting='soft', weights=[3, 9, 1]))
-                         #('clf', LogisticRegression(class_weight='balanced'))
-                         ('clf', SVC(kernel='linear', class_weight='balanced', cache_size=800))
+                         #('svc', clf2)], voting='soft'))
+                         ('clf', LogisticRegression(class_weight='balanced'))
+                         #('clf', SVC(kernel='linear', cache_size=800))
+                         #('clf', linear_model.SGDClassifier())
                          #('clf', MultinomialNB())
                          #('clf', DecisionTreeClassifier())
                          #('clf', KNeighborsClassifier())
@@ -112,14 +132,17 @@ def update_individual_scores(idx1, idx2, data):
     scores[idx1][idx2][1].append(data[2]) #recall
     scores[idx1][idx2][2].append(data[3]) #f-score
 
-def print_final_metrics():
+def print_final_metrics(algoName = '', writeToFile = False):
     print '\n###########################'
     names = ['obama', 'romney']
     class_names = ['Negative', 'Positive']
+    algoName = 'Algo 1'
+
+    output_data[0] = output_data[0] + algoName + ','
+    output_data[1] = output_data[1] + algoName + ','
     
     for idx, score in enumerate(scores):
         print '\n' + names[idx] + ' results:'
-        print 'Accuracy: ' + get_average(score[2], False) + '\n'
         #loop
         for i in range(0, 2):
             avg_prec = get_average(score[i][0])
@@ -129,6 +152,14 @@ def print_final_metrics():
             print 'Precision: ' + avg_prec
             print 'Recall: ' + avg_recall
             print 'F-Score: ' + avg_fscore + '\n'
+            output_data[idx] = output_data[idx] + avg_prec + ',' + avg_recall + ',' + avg_fscore + ','
+        
+        accuracy = get_average(score[2], False)
+        output_data[idx] = output_data[idx] + accuracy + '\n'
+        print 'Accuracy: ' + accuracy + '\n'
+    
+    if writeToFile:
+        util.writeFile(output_data)     
 			
 		
 def get_average(data, inPercentage = True):

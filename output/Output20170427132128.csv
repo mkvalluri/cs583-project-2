@@ -1,0 +1,12 @@
+Algorithm,Negative,,,Positive,,,Accuracy
+,Precision,Recall,F-Score,Precision,Recall,F-Score,
+Algo 1,0.52,0.60,0.56,0.55,0.45,0.50,51.79
+,,,,,,,
+,,,,,,,
+,,,,,,,
+Algorithm,Negative,,,Positive,,,Accuracy
+,Precision,Recall,F-Score,Precision,Recall,F-Score,
+Algo 1,0.59,0.81,0.69,0.59,0.32,0.41,56.77
+,,,,,,,
+,,,,,,,
+,,,,,,,

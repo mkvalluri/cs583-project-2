@@ -12,7 +12,7 @@ util.debug_mode = 0
 
 ##Declarations, Initializations
 dataFolder = 'data/'
-fileNames = [['obama.csv', 'obama_test_1.csv'], ['romney.csv', 'romney_test_1.csv']]
+fileNames = [['obama.csv', 'obama_test_2.csv'], ['romney.csv', 'romney_test_2.csv']]
 train_data_raw = []
 test_data_raw = []
 
@@ -69,14 +69,20 @@ if mode == 0:
             #classification.printResults(clf, ttData, target_names)
     classification.print_final_metrics()
 else:
+    #clf_len = classification.initializeClassifiers()
+
     for tIndex, tData in enumerate(train_data_raw):
         print len(tData[0])
 
         labels = tData[0]
         data = tData[1]
-        print len(data)
-        print len(labels)
+        
         clf = classification.createClassifiers(labels, data)
+        #vct = classification.vectorizeData(labels, data)
+
+        #for i in range(0, clf_len):
+            #clf1 = classification.fitData(vct, i)
+            #classification.printResults(clf1, target_names, tempTestData, tIndex)
 
         util.printString('Results for dataset: ' + fileNames[tIndex][0].split('.')[0])
         tempTestData = []
@@ -84,4 +90,4 @@ else:
         tempTestData.append(test_data_raw[tIndex][1])
         classification.printResults(clf, target_names, tempTestData, tIndex)
     
-    classification.print_final_metrics()
+    classification.print_final_metrics(writeToFile=True)

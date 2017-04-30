@@ -6,6 +6,7 @@
 import itertools
 import re
 import csv
+import time
 
 debug_mode = 0
 stop_words = []
@@ -18,6 +19,19 @@ def readFile(rootPath, fileName, firstIndex, lastIndex):
             lines.append(line)
     
     return lines
+
+def writeFile(data):
+    timestr = time.strftime("%Y%m%d%H%M%S")
+    rootPath = 'output/'
+    fileName = "Output" + timestr + ".csv"
+    headerText = "Algorithm,Negative,,,Positive,,,Accuracy\n"
+    headerText = headerText + ',Precision,Recall,F-Score,Precision,Recall,F-Score,\n'
+    for idx, d in enumerate(data):
+        data[idx] = headerText + d
+        data[idx] = data[idx] + ',,,,,,,\n,,,,,,,\n,,,,,,,\n'
+
+    with open(rootPath + fileName, 'w') as f:
+        f.write(data[0] + data[1])
 
 def printDescription(desc):
     if desc != '':
